@@ -1,0 +1,9 @@
+/target/
+/.local/
+/config/database.properties
+/.idea/
+/.vscode/
+*.iml
+*.log
+/nbactions.xml
+/nb-configuration.xml

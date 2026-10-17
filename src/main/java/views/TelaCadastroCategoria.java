@@ -14,15 +14,18 @@ import model.dao.CategoriaDAO;
  */
 
 public class TelaCadastroCategoria extends javax.swing.JFrame {
-    
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(TelaCadastroCategoria.class.getName());
 
     /**
      * Creates new form TelaCadastroCategoria
      */
-    
+
     public TelaCadastroCategoria() {
         initComponents();
+        ApoioTela.configurar(this, "Cadastrar categoria");
+        txtId.setText("Automático");
+        txtId.setToolTipText("Identificador gerado pelo banco.");
     }
 
     /**
@@ -135,21 +138,21 @@ public class TelaCadastroCategoria extends javax.swing.JFrame {
     }//GEN-LAST:event_txtNomeActionPerformed
 
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
-        Categoria categoria = new Categoria();
-        categoria.setNome_categoria(txtNome.getText());
-        
-        CategoriaDAO dao = new CategoriaDAO();
-        dao.inserir(categoria);
-        
-        JOptionPane.showMessageDialog(this, "Categoria salva com sucesso!");
+        try {
+            Categoria registro = new Categoria();
+            registro.setNome_categoria(txtNome.getText());
 
-        txtId.setText("");
-        txtNome.setText("");
+
+            new CategoriaDAO().inserir(registro);
+            ApoioTela.sucesso(this, "Categoria cadastrada com sucesso.");
+            txtNome.setText("");
+
+            txtNome.requestFocusInWindow();
+        } catch (RuntimeException ex) { ApoioTela.erro(this, ex); }
     }//GEN-LAST:event_btnSalvarActionPerformed
 
     private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
-        this.dispose();
-        new TelaMenuPrincipal().setVisible(true);
+        ApoioTela.abrir(this, TelaMenuPrincipal::new);
     }//GEN-LAST:event_btnVoltarActionPerformed
 
     /**
@@ -159,7 +162,7 @@ public class TelaCadastroCategoria extends javax.swing.JFrame {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {

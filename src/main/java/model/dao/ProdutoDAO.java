@@ -1,152 +1,82 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model.dao;
 
 import conexao.Conexao;
 import model.bean.Produto;
 import model.bean.Categoria;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import model.bean.Validacao;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author gusta
- */
 public class ProdutoDAO {
+    private static final String CONSULTA = "SELECT p.id_produto, p.nome_produto, p.preco, p.quantidade, "
+            + "p.id_categoria, c.nome_categoria FROM produto p LEFT JOIN categoria c ON c.id_categoria=p.id_categoria";
 
     public void salvar(Produto p) {
-        Connection con = Conexao.getConexao();
-        PreparedStatement stmt = null;
-
-        try {
-            stmt = con.prepareStatement(
-                "INSERT INTO produto (nome_produto, preco, quantidade, id_categoria) VALUES (?, ?, ?, ?)"
-            );
-            
-            stmt.setString(1, p.getNomeProduto());
-            stmt.setDouble(2, p.getPreco());
-            stmt.setInt(3, p.getQuantidade());
-            stmt.setInt(4, p.getCategoria().getId_categoria()); 
-
+        Validacao.produto(p);
+        try (Connection con = Conexao.getConexao();
+             PreparedStatement stmt = con.prepareStatement(
+                     "INSERT INTO produto (nome_produto, preco, quantidade, id_categoria) VALUES (?, ?, ?, ?)",
+                     Statement.RETURN_GENERATED_KEYS)) {
+            preencher(stmt, p);
             stmt.executeUpdate();
-
-        } catch (SQLException ex) {
-            throw new RuntimeException("Erro ao salvar produto: " + ex.getMessage());
-        } finally {
-            Conexao.fecharConexao(con, stmt);
-        }
+            try (ResultSet keys = stmt.getGeneratedKeys()) {
+                if (keys.next()) p.setId(keys.getInt(1));
+            }
+        } catch (SQLException ex) { throw ErrosDAO.banco("cadastrar o produto", ex); }
     }
 
     public List<Produto> listarTodos() {
-        Connection con = Conexao.getConexao();
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
         List<Produto> lista = new ArrayList<>();
-
-        
-        try {
-            stmt = con.prepareStatement("SELECT id_produto, nome_produto, preco, quantidade, id_categoria FROM produto");
-            rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                Produto p = new Produto();
-                p.setId(rs.getInt("id_produto"));
-                p.setNomeProduto(rs.getString("nome_produto"));
-                p.setPreco(rs.getDouble("preco"));
-                p.setQuantidade(rs.getInt("quantidade"));
-                
-                Categoria c = new Categoria();
-                c.setId_categoria(rs.getInt("id_categoria"));
-                
-                p.setCategoria(c);
-                lista.add(p);
-            }
-
-        } catch (SQLException ex) {
-            throw new RuntimeException("Erro ao listar produtos: " + ex.getMessage());
-        } finally {
-            Conexao.fecharConexao(con, stmt, rs);
-        }
-
+        try (Connection con = Conexao.getConexao();
+             PreparedStatement stmt = con.prepareStatement(CONSULTA + " ORDER BY p.id_produto");
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) lista.add(ler(rs));
+        } catch (SQLException ex) { throw ErrosDAO.banco("listar os produtos", ex); }
         return lista;
     }
-     public Produto read(int id_produto) {
-        Connection con = Conexao.getConexao();
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        List<Produto> lista = new ArrayList<>();
 
-        
-        try {
-            stmt = con.prepareStatement("SELECT id_produto, nome_produto, preco, quantidade, id_categoria FROM produto "
-                    + "Where id_produto = ?");
-            rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                Produto p = new Produto();
-                p.setId(rs.getInt("id_produto"));
-                p.setNomeProduto(rs.getString("nome_produto"));
-                p.setPreco(rs.getDouble("preco"));
-                p.setQuantidade(rs.getInt("quantidade"));
-                
-                Categoria c = new Categoria();
-                c.setId_categoria(rs.getInt("id_categoria"));
-                
-                p.setCategoria(c);
-                return p;
+    public Produto read(int id) {
+        try (Connection con = Conexao.getConexao();
+             PreparedStatement stmt = con.prepareStatement(CONSULTA + " WHERE p.id_produto=?")) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() ? ler(rs) : null;
             }
-
-        } catch (SQLException ex) {
-            throw new RuntimeException("Erro ao listar produtos: " + ex.getMessage());
-        } finally {
-            Conexao.fecharConexao(con, stmt, rs);
-        }
-
-        return null;
+        } catch (SQLException ex) { throw ErrosDAO.banco("consultar o produto", ex); }
     }
-     
+
     public void atualizar(Produto p) {
-        Connection con = Conexao.getConexao();
-        PreparedStatement stmt = null;
-
-        try {
-            stmt = con.prepareStatement(
-                "UPDATE produto SET nome_produto = ?, preco = ?, quantidade = ? id_categoria = ? WHERE id_produto = ?"
-            );
-
-            stmt.setString(1, p.getNomeProduto());
-            stmt.setDouble(2, p.getPreco());
-            stmt.setInt(3, p.getQuantidade());
-            stmt.setInt(4, p.getId());
-
-            stmt.executeUpdate();
-
-        } catch (SQLException ex) {
-            throw new RuntimeException("Erro ao atualizar produto: " + ex.getMessage());
-        } finally {
-            Conexao.fecharConexao(con, stmt);
-        }
+        Validacao.produto(p);
+        try (Connection con = Conexao.getConexao();
+             PreparedStatement stmt = con.prepareStatement(
+                     "UPDATE produto SET nome_produto=?, preco=?, quantidade=?, id_categoria=? WHERE id_produto=?")) {
+            preencher(stmt, p);
+            stmt.setInt(5, p.getId());
+            ErrosDAO.conferir(stmt.executeUpdate());
+        } catch (SQLException ex) { throw ErrosDAO.banco("atualizar o produto", ex); }
     }
 
     public void excluir(int id) {
-        Connection con = Conexao.getConexao();
-        PreparedStatement stmt = null;
-
-        try {
-            stmt = con.prepareStatement("DELETE FROM produto WHERE id_produto = ?");
+        try (Connection con = Conexao.getConexao();
+             PreparedStatement stmt = con.prepareStatement("DELETE FROM produto WHERE id_produto=?")) {
             stmt.setInt(1, id);
-            stmt.executeUpdate();
+            ErrosDAO.conferir(stmt.executeUpdate());
+        } catch (SQLException ex) { throw ErrosDAO.banco("excluir o produto", ex); }
+    }
 
-        } catch (SQLException ex) {
-            throw new RuntimeException("Erro ao excluir produto: " + ex.getMessage());
-        } finally {
-            Conexao.fecharConexao(con, stmt);
-        }
+    private void preencher(PreparedStatement stmt, Produto p) throws SQLException {
+        stmt.setString(1, p.getNomeProduto());
+        stmt.setBigDecimal(2, p.getPreco());
+        stmt.setInt(3, p.getQuantidade());
+        if (p.getCategoria() == null) stmt.setNull(4, Types.INTEGER);
+        else stmt.setInt(4, p.getCategoria().getId_categoria());
+    }
+
+    private Produto ler(ResultSet rs) throws SQLException {
+        Integer categoriaId = (Integer) rs.getObject("id_categoria");
+        Categoria categoria = categoriaId == null ? null : new Categoria(categoriaId, rs.getString("nome_categoria"));
+        return new Produto(rs.getInt("id_produto"), rs.getString("nome_produto"), rs.getBigDecimal("preco"),
+                rs.getInt("quantidade"), categoria);
     }
 }

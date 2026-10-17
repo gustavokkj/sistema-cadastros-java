@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <title>Sistema de Cadastros Desktop</title>
+  <desc>Projeto acadêmico em Java Swing e JDBC. Cadastros de clientes, categorias e produtos.</desc>
+  <rect width="1280" height="640" fill="#f4f3ee"/>
+  <path d="M0 0h1280v12H0z" fill="#254d6b"/>
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <rect x="72" y="70" width="244" height="36" rx="18" fill="#e1e8e8"/>
+    <text x="94" y="94" font-size="16" font-weight="600" letter-spacing="1.5" fill="#254d6b">PROJETO ACADÊMICO</text>
+    <text x="70" y="212" fill="#182f41" font-size="64" font-weight="700" letter-spacing="-2">Sistema de</text>
+    <text x="70" y="285" fill="#182f41" font-size="64" font-weight="700" letter-spacing="-2">Cadastros</text>
+    <text x="73" y="337" fill="#476373" font-size="34" font-weight="400">Desktop</text>
+    <text x="74" y="406" fill="#52616a" font-size="22">Clientes, categorias e produtos.</text>
+    <text x="74" y="439" fill="#52616a" font-size="22">Uma atividade de faculdade, revisitada.</text>
+    <path d="M74 488h1132" stroke="#d4dcd9"/>
+    <text x="74" y="548" fill="#254d6b" font-size="20" font-weight="600">Java Swing  ·  JDBC  ·  MySQL / MariaDB</text>
+    <text x="1206" y="548" text-anchor="end" fill="#52616a" font-size="18">Gustavo Prestes</text>
+    <text x="74" y="584" fill="#718086" font-size="16">Origem acadêmica · Correções funcionais · Documentação</text>
+    <rect x="758" y="130" width="444" height="300" rx="18" fill="#254d6b"/>
+    <rect x="774" y="146" width="412" height="266" rx="8" fill="#ffffff"/>
+    <path d="M774 190h412" stroke="#dce4e8" stroke-width="2"/>
+    <circle cx="796" cy="168" r="4" fill="#b3c4cd"/>
+    <circle cx="812" cy="168" r="4" fill="#b3c4cd"/>
+    <circle cx="828" cy="168" r="4" fill="#b3c4cd"/>
+    <g fill="#edf2f3">
+      <rect x="798" y="212" width="364" height="48" rx="6"/>
+      <rect x="798" y="276" width="364" height="48" rx="6"/>
+      <rect x="798" y="340" width="364" height="48" rx="6"/>
+    </g>
+    <g fill="#254d6b" font-size="20" font-weight="600">
+      <text x="820" y="243">01</text><text x="875" y="243">Clientes</text>
+      <text x="820" y="307">02</text><text x="875" y="307">Categorias</text>
+      <text x="820" y="371">03</text><text x="875" y="371">Produtos</text>
+    </g>
+    <path d="M948 430v20h-54v9h172v-9h-54v-20" fill="#254d6b"/>
+  </g>
+</svg>

@@ -14,7 +14,7 @@ import views.TelaCadastroCategoria;
  * @author gusta
  */
 public class TelaMenuPrincipal extends javax.swing.JFrame {
-    
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(TelaMenuPrincipal.class.getName());
 
     /**
@@ -22,6 +22,7 @@ public class TelaMenuPrincipal extends javax.swing.JFrame {
      */
     public TelaMenuPrincipal() {
         initComponents();
+        ApoioTela.configurar(this, "Menu principal");
     }
 
     /**
@@ -146,23 +147,19 @@ public class TelaMenuPrincipal extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClientesActionPerformed
-        new TelaListarCliente().setVisible(true);
-        this.dispose();
+        ApoioTela.abrir(this, TelaListarCliente::new);
     }//GEN-LAST:event_btnClientesActionPerformed
 
     private void btnCadastrarClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadastrarClientesActionPerformed
-        new TelaCadastroCliente().setVisible(true);
-        this.dispose();
+        ApoioTela.abrir(this, TelaCadastroCliente::new);
     }//GEN-LAST:event_btnCadastrarClientesActionPerformed
 
     private void btnCadastrarProdutosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadastrarProdutosActionPerformed
-        new TelaCadastroProduto().setVisible(true);
-        this.dispose();
+        ApoioTela.abrir(this, TelaCadastroProduto::new);
     }//GEN-LAST:event_btnCadastrarProdutosActionPerformed
 
     private void btnCadastrarCategoriasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadastrarCategoriasActionPerformed
-        new TelaCadastroCategoria().setVisible(true);
-        this.dispose();
+        ApoioTela.abrir(this, TelaCadastroCategoria::new);
     }//GEN-LAST:event_btnCadastrarCategoriasActionPerformed
 
     private void btnSairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSairActionPerformed
@@ -170,14 +167,11 @@ public class TelaMenuPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_btnSairActionPerformed
 
     private void btnProdutosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProdutosActionPerformed
-        TelaListarProduto tela = new TelaListarProduto();
-        tela.setVisible(true);
-        this.dispose();
+        ApoioTela.abrir(this, TelaListarProduto::new);
     }//GEN-LAST:event_btnProdutosActionPerformed
 
     private void btnCategoriasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCategoriasActionPerformed
-        new TelaListarCategoria().setVisible(true);
-        this.dispose();
+        ApoioTela.abrir(this, TelaListarCategoria::new);
     }//GEN-LAST:event_btnCategoriasActionPerformed
 
     /**
@@ -187,7 +181,7 @@ public class TelaMenuPrincipal extends javax.swing.JFrame {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {

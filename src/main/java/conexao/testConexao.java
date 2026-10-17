@@ -3,10 +3,10 @@ import java.sql.Connection;
 
 public class testConexao {
     public static void main(String[] args) {
-        Connection c = Conexao.getConexao();
-        if (c != null) {
+        try (Connection c = Conexao.getConexao()) {
             System.out.println("Conexão OK!");
-            Conexao.fecharConexao(c);
+        } catch (java.sql.SQLException ex) {
+            throw new IllegalStateException("Erro ao fechar conexão.", ex);
         }
     }
 }

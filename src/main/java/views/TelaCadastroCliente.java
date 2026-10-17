@@ -14,7 +14,7 @@ import model.dao.ClienteDAO;
  * @author gusta
  */
 public class TelaCadastroCliente extends javax.swing.JFrame {
-    
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(TelaCadastroCliente.class.getName());
 
     /**
@@ -22,6 +22,9 @@ public class TelaCadastroCliente extends javax.swing.JFrame {
      */
     public TelaCadastroCliente() {
         initComponents();
+        ApoioTela.configurar(this, "Cadastrar cliente");
+        txtId.setText("Automático");
+        txtId.setToolTipText("Identificador gerado pelo banco.");
     }
 
     /**
@@ -89,7 +92,7 @@ public class TelaCadastroCliente extends javax.swing.JFrame {
                             .addComponent(jLabel5))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtTelefone, javax.swing.GroupLayout.DEFAULT_SIZE, 101, Short.MAX_VALUE)
+                            .addComponent(txtTelefone, javax.swing.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
                             .addComponent(txtNome)
                             .addComponent(txtEmail)
                             .addComponent(txtId))
@@ -153,37 +156,23 @@ public class TelaCadastroCliente extends javax.swing.JFrame {
     }//GEN-LAST:event_txtIdActionPerformed
 
     private void btnCadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadastrarActionPerformed
-    String nome = txtNome.getText().trim();
-    String email = txtEmail.getText().trim();
-    String telefone = txtTelefone.getText().trim();
+        try {
+            Cliente registro = new Cliente();
+            registro.setNomeCliente(txtNome.getText());
+            registro.setEmailCliente(txtEmail.getText());
+            registro.setTelefoneCliente(txtTelefone.getText());
 
-    if (nome.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Preencha o nome do cliente.", "Atenção", JOptionPane.WARNING_MESSAGE);
-        txtNome.requestFocus();
-        return;
-    }
-
-    Cliente cliente = new Cliente();
-    cliente.setNomeCliente(nome);
-    cliente.setEmailCliente(email);
-    cliente.setTelefoneCliente(telefone);
-
-    ClienteDAO dao = new ClienteDAO();
-
-    if (dao.criar(cliente)) {
-        JOptionPane.showMessageDialog(this, "Cliente cadastrado com sucesso!");
-        txtId.setText("");
-        txtNome.setText("");
-        txtEmail.setText("");
-        txtTelefone.setText("");
-    } else {
-        JOptionPane.showMessageDialog(this, "Erro ao cadastrar cliente!", "Erro", JOptionPane.ERROR_MESSAGE);
-    }
+            new ClienteDAO().criar(registro);
+            ApoioTela.sucesso(this, "Cliente cadastrado com sucesso.");
+            txtNome.setText("");
+            txtEmail.setText("");
+            txtTelefone.setText("");
+            txtNome.requestFocusInWindow();
+        } catch (RuntimeException ex) { ApoioTela.erro(this, ex); }
     }//GEN-LAST:event_btnCadastrarActionPerformed
 
     private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
-        this.dispose();
-        new TelaMenuPrincipal().setVisible(true);
+        ApoioTela.abrir(this, TelaMenuPrincipal::new);
     }//GEN-LAST:event_btnVoltarActionPerformed
 
     /**
@@ -193,7 +182,7 @@ public class TelaCadastroCliente extends javax.swing.JFrame {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {

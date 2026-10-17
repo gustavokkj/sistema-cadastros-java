@@ -9,8 +9,8 @@ import model.dao.ProdutoDAO;
 import javax.swing.JOptionPane;
 import model.bean.Categoria;
 import model.dao.CategoriaDAO;
- import java.util.List; 
-import javax.swing.DefaultComboBoxModel; 
+ import java.util.List;
+import javax.swing.DefaultComboBoxModel;
 
 
 /**
@@ -18,25 +18,25 @@ import javax.swing.DefaultComboBoxModel;
  * @author gusta
  */
 public class TelaCadastroProduto extends javax.swing.JFrame {
-    
+
     private void carregarCategorias() {
         CategoriaDAO dao = new CategoriaDAO();
-        List<Categoria> categorias = dao.listar(); 
+        List<Categoria> categorias = dao.listar();
 
-        DefaultComboBoxModel<Categoria> model = new DefaultComboBoxModel<>(); 
+        DefaultComboBoxModel<Categoria> model = new DefaultComboBoxModel<>();
 
         Categoria sel = new Categoria();
-        sel.setId_categoria(0); 
-        sel.setNome_categoria("Selecione a Categoria"); 
+        sel.setId_categoria(0);
+        sel.setNome_categoria("Sem categoria");
         model.addElement(sel);
-        
+
         for (Categoria c : categorias) {
             model.addElement(c);
         }
-        
+
         cbbCategoria.setModel(model);
     }
-    
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(TelaCadastroProduto.class.getName());
 
     /**
@@ -45,6 +45,12 @@ public class TelaCadastroProduto extends javax.swing.JFrame {
     public TelaCadastroProduto() {
         initComponents();
         carregarCategorias();
+        ApoioTela.configurar(this, "Cadastrar produto");
+        txtId.setEditable(false);
+        txtId.setText("Automático");
+        txtPreco.setToolTipText("Exemplo: 49,90. Sem separador de milhar.");
+        cbbQuantidade.setEditable(true);
+        cbbQuantidade.setSelectedItem("0");
     }
 
     /**
@@ -88,7 +94,7 @@ public class TelaCadastroProduto extends javax.swing.JFrame {
 
         jLabel5.setText("Quantidade:");
 
-        cbbQuantidade.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1", "2", "3", "4", "5", "6", "6", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99", "100" }));
+        cbbQuantidade.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99", "100" }));
         cbbQuantidade.addActionListener(this::cbbQuantidadeActionPerformed);
 
         txtId.setEditable(false);
@@ -132,9 +138,9 @@ public class TelaCadastroProduto extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(cbbCategoria, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(txtId, javax.swing.GroupLayout.DEFAULT_SIZE, 76, Short.MAX_VALUE)
-                                    .addComponent(txtNome, javax.swing.GroupLayout.DEFAULT_SIZE, 76, Short.MAX_VALUE)
-                                    .addComponent(txtPreco, javax.swing.GroupLayout.DEFAULT_SIZE, 76, Short.MAX_VALUE))))
+                                    .addComponent(txtId, javax.swing.GroupLayout.DEFAULT_SIZE, 310, Short.MAX_VALUE)
+                                    .addComponent(txtNome, javax.swing.GroupLayout.DEFAULT_SIZE, 310, Short.MAX_VALUE)
+                                    .addComponent(txtPreco, javax.swing.GroupLayout.DEFAULT_SIZE, 310, Short.MAX_VALUE))))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(btnVoltar)
@@ -211,29 +217,25 @@ public class TelaCadastroProduto extends javax.swing.JFrame {
     }//GEN-LAST:event_txtNomeActionPerformed
 
     private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
-        this.dispose();
-        new TelaMenuPrincipal().setVisible(true);
+        ApoioTela.abrir(this, TelaMenuPrincipal::new);
     }//GEN-LAST:event_btnVoltarActionPerformed
 
     private void btnCadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadastrarActionPerformed
-        Produto p = new Produto();
-        
-        Categoria categoriaSelecionada = (Categoria) cbbCategoria.getSelectedItem();
-        
-        if (categoriaSelecionada.getId_categoria() == 0) {
-            JOptionPane.showMessageDialog(this, "Selecione uma categoria válida.", "Atenção", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        
-        p.setCategoria(categoriaSelecionada); 
-        p.setNomeProduto(txtNome.getText());
-        p.setPreco(Double.parseDouble(txtPreco.getText()));
-        p.setQuantidade(Integer.parseInt(cbbQuantidade.getSelectedItem().toString()));
-        p.setCategoria(categoriaSelecionada);
-        
-        ProdutoDAO dao = new ProdutoDAO();
-        dao.salvar(p);
-        
+        try {
+            Produto p = new Produto();
+            Categoria categoria = (Categoria) cbbCategoria.getSelectedItem();
+            p.setCategoria(categoria == null || categoria.getId_categoria() == 0 ? null : categoria);
+            p.setNomeProduto(txtNome.getText());
+            p.setPreco(model.bean.Validacao.preco(txtPreco.getText()));
+            p.setQuantidade(model.bean.Validacao.quantidade(cbbQuantidade.getEditor().getItem().toString()));
+            new ProdutoDAO().salvar(p);
+            ApoioTela.sucesso(this, "Produto cadastrado com sucesso.");
+            txtNome.setText("");
+            txtPreco.setText("");
+            cbbQuantidade.setSelectedItem("0");
+            cbbCategoria.setSelectedIndex(0);
+            txtNome.requestFocusInWindow();
+        } catch (RuntimeException ex) { ApoioTela.erro(this, ex); }
     }//GEN-LAST:event_btnCadastrarActionPerformed
 
     private void cbbCategoriaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbbCategoriaActionPerformed
@@ -247,7 +249,7 @@ public class TelaCadastroProduto extends javax.swing.JFrame {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {

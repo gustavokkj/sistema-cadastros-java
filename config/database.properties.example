@@ -1,0 +1,5 @@
+# Copie para config/database.properties. O arquivo local é ignorado pelo Git.
+# O driver MariaDB também se conecta ao MySQL.
+db.url=jdbc:mariadb://127.0.0.1:3306/sistema_vendas?connectTimeout=3000&socketTimeout=5000
+db.user=root
+db.password=

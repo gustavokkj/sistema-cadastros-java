@@ -4,22 +4,24 @@
  */
 package model.bean;
 
+import java.math.BigDecimal;
+
 /**
  *
  * @author gusta
  */
 public class Produto {
-    
+
     private int id;
     private String nomeProduto;
-    private double preco;
+    private BigDecimal preco = BigDecimal.ZERO;
     private int quantidade;
     private Categoria categoria;
 
     public Produto() {
     }
 
-    public Produto(int id, String nomeProduto, double preco, int quantidade, Categoria categoria) {
+    public Produto(int id, String nomeProduto, BigDecimal preco, int quantidade, Categoria categoria) {
         this.id = id;
         this.nomeProduto = nomeProduto;
         this.preco = preco;
@@ -43,11 +45,11 @@ public class Produto {
         this.nomeProduto = nomeProduto;
     }
 
-    public double getPreco() {
+    public BigDecimal getPreco() {
         return preco;
     }
 
-    public void setPreco(double preco) {
+    public void setPreco(BigDecimal preco) {
         this.preco = preco;
     }
 

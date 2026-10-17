@@ -14,7 +14,7 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- -----------------------------------------------------
 -- Schema sistema_vendas
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `sistema_vendas` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci ;
+CREATE SCHEMA IF NOT EXISTS `sistema_vendas` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;
 USE `sistema_vendas` ;
 
 -- -----------------------------------------------------
@@ -25,9 +25,8 @@ CREATE TABLE IF NOT EXISTS `sistema_vendas`.`categoria` (
   `nome_categoria` VARCHAR(100) NOT NULL,
   PRIMARY KEY (`id_categoria`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 2
 DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
+COLLATE = utf8mb4_unicode_ci;
 
 
 -- -----------------------------------------------------
@@ -40,9 +39,8 @@ CREATE TABLE IF NOT EXISTS `sistema_vendas`.`cliente` (
   `telefone_cliente` VARCHAR(30) NULL DEFAULT NULL,
   PRIMARY KEY (`id_cliente`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 3
 DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
+COLLATE = utf8mb4_unicode_ci;
 
 
 -- -----------------------------------------------------
@@ -55,16 +53,15 @@ CREATE TABLE IF NOT EXISTS `sistema_vendas`.`produto` (
   `quantidade` INT NOT NULL DEFAULT '0',
   `id_categoria` INT NULL DEFAULT NULL,
   PRIMARY KEY (`id_produto`),
-  INDEX `fk_produto_categoria` (`id_categoria` ASC) VISIBLE,
+  INDEX `fk_produto_categoria` (`id_categoria` ASC),
   CONSTRAINT `fk_produto_categoria`
     FOREIGN KEY (`id_categoria`)
     REFERENCES `sistema_vendas`.`categoria` (`id_categoria`)
     ON DELETE SET NULL
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-AUTO_INCREMENT = 5
 DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
+COLLATE = utf8mb4_unicode_ci;
 
 
 -- -----------------------------------------------------
@@ -76,7 +73,7 @@ CREATE TABLE IF NOT EXISTS `sistema_vendas`.`venda` (
   `date` DATE NOT NULL,
   `totalvenda` DECIMAL(10,2) NOT NULL DEFAULT '0.00',
   PRIMARY KEY (`id_venda`),
-  INDEX `fk_venda_cliente` (`id_cliente` ASC) VISIBLE,
+  INDEX `fk_venda_cliente` (`id_cliente` ASC),
   CONSTRAINT `fk_venda_cliente`
     FOREIGN KEY (`id_cliente`)
     REFERENCES `sistema_vendas`.`cliente` (`id_cliente`)
@@ -84,7 +81,7 @@ CREATE TABLE IF NOT EXISTS `sistema_vendas`.`venda` (
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
+COLLATE = utf8mb4_unicode_ci;
 
 
 -- -----------------------------------------------------
@@ -97,8 +94,8 @@ CREATE TABLE IF NOT EXISTS `sistema_vendas`.`produtovenda` (
   `quantidade` INT NOT NULL DEFAULT '1',
   `subtotal` DECIMAL(10,2) NOT NULL DEFAULT '0.00',
   PRIMARY KEY (`id_produtovenda`),
-  INDEX `fk_produtovenda_venda` (`id_venda` ASC) VISIBLE,
-  INDEX `fk_produtovenda_produto` (`id_produto` ASC) VISIBLE,
+  INDEX `fk_produtovenda_venda` (`id_venda` ASC),
+  INDEX `fk_produtovenda_produto` (`id_produto` ASC),
   CONSTRAINT `fk_produtovenda_produto`
     FOREIGN KEY (`id_produto`)
     REFERENCES `sistema_vendas`.`produto` (`id_produto`)
@@ -111,7 +108,7 @@ CREATE TABLE IF NOT EXISTS `sistema_vendas`.`produtovenda` (
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
+COLLATE = utf8mb4_unicode_ci;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

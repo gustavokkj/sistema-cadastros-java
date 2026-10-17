@@ -1,124 +1,67 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model.dao;
 
 import conexao.Conexao;
 import model.bean.Cliente;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import model.bean.Validacao;
+import java.sql.*;
 import java.util.ArrayList;
 
-/**
- *
- * @author gusta
- */
 public class ClienteDAO {
-	
-	public boolean criar(Cliente c) {
-		Connection con = Conexao.getConexao();
-		PreparedStatement stmt = null;
-		
-		try {
-			stmt = con.prepareStatement(
-				"INSERT INTO cliente (nome_cliente, email_cliente, telefone_cliente) VALUES (?, ?, ?)"
-			);
-			
-			stmt.setString(1, c.getNomeCliente());
-			stmt.setString(2, c.getEmailCliente());
-			stmt.setString(3, c.getTelefoneCliente());
-			
-			stmt.executeUpdate();
-			return true;
-			
-		} catch (SQLException ex) {
-			System.out.println("Erro ao salvar cliente: " + ex);
-			return false;
-			
-		} finally {
-			Conexao.fecharConexao(con, stmt);
-		}
-	}
-	
-	public ArrayList<Cliente> listar() {
-		Connection con = Conexao.getConexao();
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		
-		ArrayList<Cliente> lista = new ArrayList<>();
-		
-		try {
-			stmt = con.prepareStatement("SELECT * FROM cliente");
-			rs = stmt.executeQuery();
-			
-			while (rs.next()) {
-				Cliente cli = new Cliente();
-				
-				cli.setIdCliente(rs.getInt("id_cliente"));
-				cli.setNomeCliente(rs.getString("nome_cliente"));
-				cli.setEmailCliente(rs.getString("email_cliente"));
-				cli.setTelefoneCliente(rs.getString("telefone_cliente"));
-				
-				lista.add(cli);
-			}
-			
-		} catch (SQLException ex) {
-			System.out.println("Erro ao listar clientes: " + ex);
-			
-		} finally {
-			Conexao.fecharConexao(con, stmt, rs);
-		}
-		
-		return lista;
-	}
-	
-	public boolean atualizar(Cliente c) {
-		Connection con = Conexao.getConexao();
-		PreparedStatement stmt = null;
-		
-		try {
-			stmt = con.prepareStatement(
-				"UPDATE cliente SET nome_cliente=?, email_cliente=?, telefone_cliente=? WHERE id_cliente=?"
-			);
-			
-			stmt.setString(1, c.getNomeCliente());
-			stmt.setString(2, c.getEmailCliente());
-			stmt.setString(3, c.getTelefoneCliente());
-			stmt.setInt(4, c.getIdCliente());
-			
-			stmt.executeUpdate();
-			return true;
-			
-		} catch (SQLException ex) {
-			System.out.println("Erro ao atualizar cliente: " + ex);
-			return false;
-			
-		} finally {
-			Conexao.fecharConexao(con, stmt);
-		}
-	}
-	
-	public boolean excluir(int idCliente) {
-		Connection con = Conexao.getConexao();
-		PreparedStatement stmt = null;
-		
-		try {
-			stmt = con.prepareStatement("DELETE FROM cliente WHERE id_cliente = ?");
-			stmt.setInt(1, idCliente);
-			
-			stmt.executeUpdate();
-			return true;
-			
-		} catch (SQLException ex) {
-			System.out.println("Erro ao excluir cliente: " + ex);
-			return false;
-			
-		} finally {
-			Conexao.fecharConexao(con, stmt);
-		}
-	}
+    public boolean criar(Cliente c) {
+        Validacao.cliente(c);
+        String sql = "INSERT INTO cliente (nome_cliente, email_cliente, telefone_cliente) VALUES (?, ?, ?)";
+        try (Connection con = Conexao.getConexao();
+             PreparedStatement stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            preencher(stmt, c);
+            stmt.executeUpdate();
+            try (ResultSet keys = stmt.getGeneratedKeys()) {
+                if (keys.next()) c.setIdCliente(keys.getInt(1));
+            }
+            return true;
+        } catch (SQLException ex) { throw ErrosDAO.banco("cadastrar o cliente", ex); }
+    }
+
+    public ArrayList<Cliente> listar() {
+        ArrayList<Cliente> lista = new ArrayList<>();
+        try (Connection con = Conexao.getConexao();
+             PreparedStatement stmt = con.prepareStatement("SELECT * FROM cliente ORDER BY id_cliente");
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Cliente c = new Cliente();
+                c.setIdCliente(rs.getInt("id_cliente"));
+                c.setNomeCliente(rs.getString("nome_cliente"));
+                c.setEmailCliente(rs.getString("email_cliente"));
+                c.setTelefoneCliente(rs.getString("telefone_cliente"));
+                lista.add(c);
+            }
+        } catch (SQLException ex) { throw ErrosDAO.banco("listar os clientes", ex); }
+        return lista;
+    }
+
+    public boolean atualizar(Cliente c) {
+        Validacao.cliente(c);
+        try (Connection con = Conexao.getConexao();
+             PreparedStatement stmt = con.prepareStatement(
+                     "UPDATE cliente SET nome_cliente=?, email_cliente=?, telefone_cliente=? WHERE id_cliente=?")) {
+            preencher(stmt, c);
+            stmt.setInt(4, c.getIdCliente());
+            ErrosDAO.conferir(stmt.executeUpdate());
+            return true;
+        } catch (SQLException ex) { throw ErrosDAO.banco("atualizar o cliente", ex); }
+    }
+
+    public boolean excluir(int idCliente) {
+        try (Connection con = Conexao.getConexao();
+             PreparedStatement stmt = con.prepareStatement("DELETE FROM cliente WHERE id_cliente=?")) {
+            stmt.setInt(1, idCliente);
+            ErrosDAO.conferir(stmt.executeUpdate());
+            return true;
+        } catch (SQLException ex) { throw ErrosDAO.banco("excluir o cliente", ex); }
+    }
+
+    private void preencher(PreparedStatement stmt, Cliente c) throws SQLException {
+        stmt.setString(1, c.getNomeCliente());
+        stmt.setString(2, c.getEmailCliente());
+        stmt.setString(3, c.getTelefoneCliente());
+    }
 }

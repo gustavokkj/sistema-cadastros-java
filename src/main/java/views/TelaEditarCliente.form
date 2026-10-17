@@ -68,7 +68,7 @@
                           </Group>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="txtTelefone" pref="101" max="32767" attributes="0"/>
+                              <Component id="txtTelefone" pref="260" max="32767" attributes="0"/>
                               <Component id="txtNome" alignment="0" max="32767" attributes="0"/>
                               <Component id="txtEmail" max="32767" attributes="0"/>
                               <Component id="txtId" alignment="0" max="32767" attributes="0"/>

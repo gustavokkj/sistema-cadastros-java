@@ -20,50 +20,49 @@ import model.dao.CategoriaDAO;
  */
 public class TelaListarProduto extends javax.swing.JFrame {
     private Produto produtoSelecionado;
-    
+    private boolean carregandoTabela;
+
     public void preencherTabela() {
+        java.util.List<Produto> produtos = new ProdutoDAO().listarTodos();
+        carregandoTabela = true;
+        tblProdutos.setRowSorter(null);
+        produtoSelecionado = null;
+        tblProdutos.clearSelection();
+        txtNome.setText("");
+        txtPreco.setText("");
+        txtQuantidade.setText("");
+        cbbCategoria.setSelectedIndex(0);
         DefaultTableModel modelo = (DefaultTableModel) tblProdutos.getModel();
-        
-        // 🚨 1. Limpa todas as linhas (CORRETO)
-        modelo.setNumRows(0); 
-
-        ProdutoDAO dao = new ProdutoDAO();
-
-        List<Produto> produtos = dao.listarTodos();
-
+        modelo.setRowCount(0);
         for (Produto p : produtos) {
-
-            // 🚨 2. CORREÇÃO: Adicionando 6 colunas, mapeadas corretamente:
             modelo.addRow(new Object[]{
-                p.getId(),                                       // Coluna 0: ID
-                p.getNomeProduto(),                              // Coluna 1: Nome
-                p.getPreco(),                                    // Coluna 2: Preço
-                p.getQuantidade(),                               // Coluna 3: Quantidade
-                p.getCategoria().getNome_categoria(),            // Coluna 4: Nome da Categoria (Requer JOIN no DAO)
-                p.getCategoria().getId_categoria()               // Coluna 5: ID Categoria
+                p.getId(), p.getNomeProduto(), p.getPreco(), p.getQuantidade(),
+                p.getCategoria() == null ? "Sem categoria" : p.getCategoria().getNome_categoria()
             });
         }
+        tblProdutos.setRowSorter(new javax.swing.table.TableRowSorter<>(modelo));
+        carregandoTabela = false;
     }
-    
+
     private void carregarCategorias() {
         CategoriaDAO dao = new CategoriaDAO();
-        List<Categoria> categorias = dao.listar(); 
+        List<Categoria> categorias = dao.listar();
 
-        DefaultComboBoxModel<Categoria> model = new DefaultComboBoxModel<>(); 
+        DefaultComboBoxModel<Categoria> model = new DefaultComboBoxModel<>();
 
         Categoria sel = new Categoria();
-        sel.setId_categoria(0); 
-        sel.setNome_categoria("Selecione a Categoria"); 
+        sel.setId_categoria(0);
+        sel.setNome_categoria("Sem categoria");
         model.addElement(sel);
-        
+
         for (Categoria c : categorias) {
             model.addElement(c);
         }
-        
+
         cbbCategoria.setModel(model);
-    
+
     }
-    
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(TelaListarProduto.class.getName());
 
     /**
@@ -71,9 +70,26 @@ public class TelaListarProduto extends javax.swing.JFrame {
      */
     public TelaListarProduto() {
         initComponents();
-        // 🚨 CORREÇÃO 1: Chamar carregarCategorias() para popular o ComboBox
-        carregarCategorias(); 
+        tblProdutos.setModel(new DefaultTableModel(new Object[]{"ID", "Nome", "Preço", "Quantidade", "Categoria"}, 0) {
+            @Override public boolean isCellEditable(int row, int column) { return false; }
+            @Override public Class<?> getColumnClass(int column) {
+                return switch (column) {
+                    case 0, 3 -> Integer.class;
+                    case 2 -> java.math.BigDecimal.class;
+                    default -> String.class;
+                };
+            }
+        });
+        ApoioTela.tabela(tblProdutos);
+        ApoioTela.moeda(tblProdutos, 2);
+        tblProdutos.getSelectionModel().addListSelectionListener(event -> {
+            if (!event.getValueIsAdjusting()) selecionarProduto();
+        });
+        carregarCategorias();
         preencherTabela();
+        setSize(820, 490);
+        ApoioTela.configurar(this, "Produtos");
+        txtPreco.setToolTipText("Exemplo: 49,90. Sem separador de milhar.");
     }
 
     /**
@@ -218,112 +234,68 @@ public class TelaListarProduto extends javax.swing.JFrame {
     }//GEN-LAST:event_cbbCategoriaActionPerformed
 
     private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
-        // TODO add your handling code here:
-
-        TelaMenuPrincipal tela = new TelaMenuPrincipal();
-        tela.setVisible(true);
-        this.dispose();
+        ApoioTela.abrir(this, TelaMenuPrincipal::new);
     }//GEN-LAST:event_btnVoltarActionPerformed
 
     private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
-        // TODO add your handling code here:
-        if (produtoSelecionado == null) {
-            JOptionPane.showMessageDialog(this, "Selecione um produto na tabela para editar.", "Atenção", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        
         try {
-            // Usa o ID do produto que foi lido (armazenado em produtoSelecionado)
-            produtoSelecionado.setNomeProduto(txtNome.getText());
-            produtoSelecionado.setQuantidade(Integer.parseInt(txtQuantidade.getText()));
-            produtoSelecionado.setPreco(Double.parseDouble(txtPreco.getText()));
-
-            // 1. Obtém o objeto Categoria selecionado do ComboBox
-            Categoria categoriaSelecionada = (Categoria) cbbCategoria.getSelectedItem();
-
-            // 2. A validação: verifica se é o item "Selecione..." (ID 0)
-            if (categoriaSelecionada.getId_categoria() == 0) {
-                JOptionPane.showMessageDialog(this, "Selecione uma categoria válida.", "Atenção", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            // 3. Atribui a Categoria
-            produtoSelecionado.setCategoria(categoriaSelecionada); 
-            
-            // 4. Atualiza no banco
-            ProdutoDAO dao = new ProdutoDAO();
-            dao.atualizar(produtoSelecionado);
-            
-            JOptionPane.showMessageDialog(this, "Produto atualizado com sucesso!");
-            preencherTabela(); // Recarrega a tabela para mostrar a atualização
-            
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Erro de formato (Preço/Quantidade).", "Erro", JOptionPane.ERROR_MESSAGE);
-        } catch (RuntimeException ex) {
-             JOptionPane.showMessageDialog(this, "Erro ao atualizar: " + ex.getMessage(), "Erro de Banco de Dados", JOptionPane.ERROR_MESSAGE);
-        }
-    
+            if (produtoSelecionado == null) throw new IllegalArgumentException("Selecione um produto na tabela para editar.");
+            Produto atualizado = new Produto();
+            atualizado.setId(produtoSelecionado.getId());
+            atualizado.setNomeProduto(txtNome.getText());
+            atualizado.setPreco(model.bean.Validacao.preco(txtPreco.getText()));
+            atualizado.setQuantidade(model.bean.Validacao.quantidade(txtQuantidade.getText()));
+            Categoria categoria = (Categoria) cbbCategoria.getSelectedItem();
+            atualizado.setCategoria(categoria == null || categoria.getId_categoria() == 0 ? null : categoria);
+            new ProdutoDAO().atualizar(atualizado);
+            preencherTabela();
+            ApoioTela.sucesso(this, "Produto atualizado com sucesso.");
+        } catch (RuntimeException ex) { ApoioTela.erro(this, ex); }
     }//GEN-LAST:event_btnEditarActionPerformed
 
     private void btnExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExcluirActionPerformed
-        // TODO add your handling code here:
-            if(produtoSelecionado != null) {
-                if(JOptionPane.showConfirmDialog(this, "Tem certeza que deseja excluir o produto " + produtoSelecionado.getNomeProduto() + "?") == JOptionPane.YES_OPTION){
-
-                    ProdutoDAO dao = new ProdutoDAO();
-                    dao.excluir(produtoSelecionado.getId()); // Usa o ID do produto lido
-
-                    JOptionPane.showMessageDialog(this, "Produto excluído com sucesso!");
-                    preencherTabela(); // Recarrega a tabela
-
-                    // Limpa os campos da tela
-                    txtNome.setText("");
-                    txtPreco.setText("");
-                    txtQuantidade.setText("");
-                    cbbCategoria.setSelectedIndex(0);
-                    produtoSelecionado = null; // Limpa a referência do produto
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Selecione um produto na tabela para excluir.", "Atenção", JOptionPane.WARNING_MESSAGE);
-            }
-        
+        try {
+            if (produtoSelecionado == null) throw new IllegalArgumentException("Selecione um produto na tabela para excluir.");
+            if (!ApoioTela.confirmar(this, "Excluir " + produtoSelecionado.getNomeProduto() + "?")) return;
+            new ProdutoDAO().excluir(produtoSelecionado.getId());
+            preencherTabela();
+            ApoioTela.sucesso(this, "Produto excluído com sucesso.");
+        } catch (RuntimeException ex) { ApoioTela.erro(this, ex); }
     }//GEN-LAST:event_btnExcluirActionPerformed
 
     private void tblProdutosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblProdutosMouseClicked
-// Lógica para carregar os dados do produto selecionado nos campos de texto e ComboBox
+        // A seleção também funciona pelo teclado, via ListSelectionListener.
+    }//GEN-LAST:event_tblProdutosMouseClicked
+
+    private void selecionarProduto() {
+        if (carregandoTabela) return;
+        produtoSelecionado = null;
         int linha = tblProdutos.getSelectedRow();
-        
-        if(linha != -1) {
-            String id_produto = tblProdutos.getValueAt(linha, 0).toString();
-            
-            ProdutoDAO dao = new ProdutoDAO();
-            // 🚨 ATRIBUIÇÃO: Armazena o produto lido na variável global
-            produtoSelecionado = dao.read(Integer.parseInt(id_produto));
-
-            txtNome.setText(produtoSelecionado.getNomeProduto());
-            txtPreco.setText(String.valueOf(produtoSelecionado.getPreco()));
-            txtQuantidade.setText(String.valueOf(produtoSelecionado.getQuantidade()));
-
-            // 🚨 CÓDIGO PARA SELECIONAR A CATEGORIA NO COMBOBOX (CORRETO)
-
-            // 1. Obtém o modelo que contém os objetos Categoria
-            javax.swing.DefaultComboBoxModel<Categoria> modeloCategoria = 
-                (javax.swing.DefaultComboBoxModel<Categoria>) cbbCategoria.getModel();
-
-            // 2. Itera sobre todos os itens do modelo
-            for (int i = 0; i < modeloCategoria.getSize(); i++) {
-                Categoria item = modeloCategoria.getElementAt(i);
-
-                // 3. Compara o ID da categoria do item do ComboBox com o ID da categoria do Produto lido
-                if (item.getId_categoria() == produtoSelecionado.getCategoria().getId_categoria()) {
-
-                    // 4. Se o ID for igual, seleciona o item no ComboBox e interrompe o loop
-                    cbbCategoria.setSelectedIndex(i);
-                    break; 
+        if (linha < 0) return;
+        try {
+            int id = ((Number) tblProdutos.getValueAt(linha, 0)).intValue();
+            Produto p = new ProdutoDAO().read(id);
+            if (p == null) throw new IllegalStateException("Produto não encontrado. Reabra a listagem.");
+            txtNome.setText(p.getNomeProduto());
+            txtPreco.setText(p.getPreco().toPlainString().replace('.', ','));
+            txtQuantidade.setText(String.valueOf(p.getQuantidade()));
+            cbbCategoria.setSelectedIndex(0);
+            if (p.getCategoria() != null) {
+                for (int i = 1; i < cbbCategoria.getItemCount(); i++) {
+                    if (cbbCategoria.getItemAt(i).getId_categoria() == p.getCategoria().getId_categoria()) {
+                        cbbCategoria.setSelectedIndex(i);
+                        break;
+                    }
                 }
             }
+            produtoSelecionado = p;
+        } catch (RuntimeException ex) {
+            txtNome.setText("");
+            txtPreco.setText("");
+            txtQuantidade.setText("");
+            ApoioTela.erro(this, ex);
         }
-    }//GEN-LAST:event_tblProdutosMouseClicked
+    }
 
     /**
      * @param args the command line arguments
@@ -332,7 +304,7 @@ public class TelaListarProduto extends javax.swing.JFrame {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
